@@ -2,8 +2,8 @@
 
 A single-file browser tool for comparing responses from multiple Large Language Models side by side. It is useful when you want to test the same prompt against several OpenAI-compatible models, compare latency and token usage, and inspect response differences without adding a backend service.
 
-![Configuration screen](docs/screenshots/configuration.png)
-![Reference comparison screen](docs/screenshots/reference-comparison.png)
+<img width="1440" height="1200" alt="configuration" src="https://github.com/user-attachments/assets/29b6326b-f350-4253-a590-2b9ded60e4f0" />
+<img width="1440" height="1200" alt="reference-comparison" src="https://github.com/user-attachments/assets/4b72adcf-1aab-4b4c-b56e-940b2003814f" />
 
 ## What Changed In This Fork
 
