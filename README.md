@@ -1,148 +1,123 @@
-# LLM Model Response Diff Tool 🔍
+# LLM Model Response Diff Tool
 
-A modern web application for comparing responses from different Large Language Models (LLMs) side-by-side. Compare OpenAI GPT models with Anthropic Claude, analyze performance metrics, and visualize differences with highlighting.
+A single-file browser tool for comparing responses from multiple Large Language Models side by side. It is useful when you want to test the same prompt against several OpenAI-compatible models, compare latency and token usage, and inspect response differences without adding a backend service.
 
-![image](https://github.com/user-attachments/assets/7fbaf992-6410-47f3-9371-6ac0e161dccf)
-![image](https://github.com/user-attachments/assets/4f64ae7f-f9e4-4ce0-baa2-0d594f2020c3)
+![Configuration screen](docs/screenshots/configuration.png)
+![Reference comparison screen](docs/screenshots/reference-comparison.png)
 
-## ✨ Features
+## What Changed In This Fork
 
-- **🔀 Side-by-Side Comparison**: Compare responses from any two LLM models
-- **⚡ Real-Time Metrics**: Track response time, token usage, and performance
-- **🎨 Intelligent Highlighting**: Visual diff highlighting to spot differences at a glance
-- **🌐 Multi-Provider Support**: Works with OpenAI, Anthropic, and any OpenAI-compatible APIs
-- **📱 Responsive Design**: Beautiful, modern UI that works on desktop and mobile
-- **🔒 Secure**: API keys are never stored or transmitted to external servers
-- **⚙️ Configurable**: Flexible endpoint and model configuration
+- Compare any number of configured models, not just two.
+- Add model cards one by one with the `+` button.
+- Bulk-add model names from a newline-separated or comma-separated list.
+- Export and import the full working setup as JSON.
+- Send an optional system prompt together with the user prompt.
+- Compare model outputs against a manually entered reference answer.
+- Mark latency and token metrics as better or worse than reference values.
+- Keep per-model API failures visible instead of hiding all results when one model fails.
+- Use OpenRouter examples in the docs and UI placeholders.
 
-## 🚀 Quick Start
+## Features
 
-### Option 1: Use Online (Recommended)
-Simply open the `llm-diff-tool.html` file in your web browser - no installation required!
+- **Multi-model comparison**: run the same prompt against one or more configured models.
+- **Side-by-side response view**: inspect every model response in separate result cards.
+- **Reference comparison**: paste a baseline answer and compare every model against it.
+- **Metric tracking**: display response time, prompt tokens, completion tokens, total tokens, and optional cost values returned by the API.
+- **Difference highlighting**: highlight word-level differences between model output and the reference answer.
+- **Settings import/export**: save endpoint, key, model, prompt, reference, and highlighting settings to JSON.
+- **OpenAI-compatible API support**: works with endpoints that accept the chat completions request shape and Bearer token authorization.
+- **No backend required**: the app is a standalone HTML file that runs in the browser.
 
-### Option 2: Local Development
+## Quick Start
+
+Open `llm_diff_tool.html` in a browser.
+
+If your browser blocks API calls or file features from a local file, serve the folder locally:
+
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/llm-diff-tool.git
-cd llm-diff-tool
-
-# Open in your browser
-open llm-diff-tool.html
-# or
-python -m http.server 8000  # Then visit http://localhost:8000
+python -m http.server 8000
 ```
 
-## 📖 Usage
+Then open:
 
-1. **Configure Your Models**
-   - Enter API endpoints for both models
-   - Add your API keys (stored locally only)
-   - Specify model names (e.g., `gpt-4`, `claude-3-sonnet-20240229`)
-
-2. **Enter Your Prompt**
-   - Type or paste the prompt you want both models to respond to
-
-3. **Compare**
-   - Click "Compare Responses" to get results from both models
-   - View side-by-side responses with difference highlighting
-   - Analyze performance metrics and token usage
-
-4. **Toggle Features**
-   - Enable/disable difference highlighting as needed
-   - Scroll through longer responses easily
-
-## 🔧 Supported Providers
-
-### OpenAI
-```
-Endpoint: https://api.openai.com/v1/chat/completions
-Models: gpt-4, gpt-4-turbo, gpt-3.5-turbo, etc.
+```text
+http://localhost:8000/llm_diff_tool.html
 ```
 
-### Anthropic
+## Usage
+
+1. Configure the first model card:
+   - Endpoint, for example `https://openrouter.ai/api/v1/chat/completions`
+   - API key
+   - Model name, for example `openai/gpt-4o-mini`
+
+2. Add more models:
+   - Click `+` to duplicate the previous card, then edit the model name.
+   - Or paste multiple model names into `Model Names` and click `Add listed models`.
+
+3. Enter prompts:
+   - `System Prompt` is optional.
+   - `User Prompt` is required.
+
+4. Click `Compare Responses`.
+
+5. Optionally fill the `Reference` card in the results area:
+   - Response time and token counts become comparison baselines.
+   - Reference response is used for highlighted output differences.
+   - Click `Compare` in the reference card to re-render the comparison.
+
+## Settings JSON
+
+`Export settings` saves a JSON file with:
+
+- Model endpoint, API key, and model name for each configured model.
+- Reference metrics and reference response.
+- System prompt and user prompt.
+- Difference-highlighting state.
+
+Treat exported settings files as sensitive because they can contain API keys.
+
+## Supported APIs
+
+The request payload uses the OpenAI chat completions shape:
+
+```json
+{
+  "model": "model-name",
+  "messages": [
+    { "role": "system", "content": "optional system prompt" },
+    { "role": "user", "content": "user prompt" }
+  ]
+}
 ```
-Endpoint: https://api.anthropic.com/v1/messages
-Models: claude-3-opus-20240229, claude-3-sonnet-20240229, etc.
-```
 
-### Custom/Local APIs
-Any API that follows the OpenAI chat completions format:
-```
-Endpoint: http://localhost:8000/v1/chat/completions
-Models: llama-2-7b, mistral-7b, etc.
-```
+The tool sends `Authorization: Bearer <api-key>` and parses OpenAI-style `choices[0].message.content`. It also understands Anthropic-style text and token fields when an endpoint or proxy returns them in the response.
 
-## ⚙️ Configuration
+## Privacy Notes
 
-### API Key Setup
-1. **OpenAI**: Get your API key from [OpenAI Platform](https://platform.openai.com/api-keys)
-2. **Anthropic**: Get your API key from [Anthropic Console](https://console.anthropic.com/)
-3. **Local Models**: Configure according to your local setup
+- There is no server component in this repository.
+- Requests are sent directly from your browser to the endpoints you configure.
+- The app does not persist settings automatically.
+- Exported settings files may include API keys, so store or share them carefully.
 
-### Request Parameters
-The tool sends requests with these default parameters:
-- `max_tokens`: 1000
-- `temperature`: 0.7
-- Message format: OpenAI chat completions style
+## Troubleshooting
 
-## 📊 Metrics Tracked
+**CORS errors**
 
-- **Response Time**: How long each model took to respond
-- **Prompt Tokens**: Number of tokens in your input
-- **Completion Tokens**: Number of tokens in the model's response
-- **Total Tokens**: Combined token usage
-- **Model Names**: For easy identification
+Some providers block browser-origin requests. Use a provider endpoint or local proxy that allows browser requests.
 
-## 🎨 Features in Detail
+**`Please fill in all fields`**
 
-### Difference Highlighting
-The tool uses intelligent word-level comparison to highlight:
-- **🔴 Removed content**: Text present in Model 1 but not Model 2
-- **🟢 Added content**: Text present in Model 2 but not Model 1
-- **⚪ Unchanged content**: Text that's identical in both responses
+Every configured model must have endpoint, API key, and model name values, and the user prompt must not be empty.
 
-### Performance Comparison
-Track and compare:
-- Response latency
-- Token efficiency
-- Output length
-- Model behavior differences
+**One model fails**
 
-## 🛡️ Security & Privacy
+The failed model is shown as an error card while other model results can still render.
 
-- **No Data Storage**: All comparisons happen locally in your browser
-- **No External Requests**: API keys and responses never leave your device
-- **Direct API Calls**: Connects directly to LLM providers, no intermediary servers
+**Unexpected response format**
 
-## 🐛 Troubleshooting
+Check that the endpoint returns either OpenAI-compatible chat completions JSON or a compatible text response shape.
 
-### Common Issues
+## License
 
-**API Key Errors**
-- Ensure your API keys are valid and have sufficient credits
-- Check that you're using the correct endpoint for each provider
-
-**CORS Errors**
-- Some browsers may block direct API calls
-- Use a local server (like `python -m http.server`) if needed
-
-**Response Format Issues**
-- Verify your model names are correct
-- Ensure the API endpoint supports the chat completions format
-
-**Slow Performance**
-- Check your internet connection
-- Some models may have longer response times
-
-## 📝 Changelog
-
-### v1.0.0
-- Initial release
-- OpenAI and Anthropic support
-- Real-time difference highlighting
-- Performance metrics tracking
-- Responsive design
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
